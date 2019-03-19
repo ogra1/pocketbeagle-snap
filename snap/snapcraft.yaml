@@ -1,0 +1,125 @@
+name: pocketbeagle
+version: 18-0.1
+summary: Pocketbeagle
+description: |
+ Bootloader files and partitoning data to create a
+ bootable Ubuntu Core 18 image for the Beaglebone Pocketbeagle.
+type: gadget
+base: core18
+architectures:
+  - build-on: amd64
+    run-on: armhf
+confinement: strict
+grade: stable
+
+parts:
+  uboot:
+    plugin: make
+    source: git://git.denx.de/u-boot.git
+    source-branch: v2018.11
+    artifacts: [MLO, u-boot.img]
+    override-build: |
+      git apply -v ../../../uboot.patch
+      TCHAINVER="$(wget -q -O - \
+                 https://releases.linaro.org/components/toolchain/binaries/latest-7/arm-linux-gnueabihf/| \
+                 html2text -width 200|grep 'x86_64_arm-linux-gnueabihf.tar.xz '|cut -d' ' -f2)"
+      wget https://releases.linaro.org/components/toolchain/binaries/latest-7/arm-linux-gnueabihf/$TCHAINVER
+      tar xf $TCHAINVER
+      mv $(echo $TCHAINVER|sed 's/.tar.xz$//') toolchain
+      CROSS_COMPILE=$(pwd)/toolchain/bin/arm-linux-gnueabihf- make am335x_evm_usbspl_defconfig
+      CROSS_COMPILE=$(pwd)/toolchain/bin/arm-linux-gnueabihf- make
+      cp MLO $SNAPCRAFT_PART_INSTALL/
+      cp u-boot.img $SNAPCRAFT_PART_INSTALL/
+      tools/mkenvimage -r -s 131072 -o $SNAPCRAFT_PART_INSTALL/uboot.env ../../../uboot.env.in
+      cd $SNAPCRAFT_PART_INSTALL/; ln -s uboot.env uboot.conf
+    build-packages:
+      - libpython2.7-dev
+      - build-essential
+      - bc
+      - wget
+      - on amd64:
+        - gcc-arm-linux-gnueabihf
+  devicetree:
+    source: .
+    plugin: nil
+    override-build: |
+      set -e
+      dtc -I dts -O dtb -o $SNAPCRAFT_PART_INSTALL/am335x-pocketbeagle.dtb am335x-pocketbeagle.dts
+    build-packages:
+      - device-tree-compiler
+  initrd-snippet:
+    source: .
+    plugin: nil
+    override-build: |
+      set -e
+      cd initrd && find . | cpio --quiet -o -H newc| lzma >>$SNAPCRAFT_PART_INSTALL/initrd-extra.img
+    build-packages:
+      - cpio
+      - findutils
+      - xz-utils
+      - gcc-arm-linux-gnueabihf:amd64
+
+slots:
+  gpio-20:
+    interface: gpio
+    number: 20
+  gpio-26:
+    interface: gpio
+    number: 26
+  gpio-27:
+    interface: gpio
+    number: 27
+  gpio-44:
+    interface: gpio
+    number: 44
+  gpio-45:
+    interface: gpio
+    number: 45
+  gpio-46:
+    interface: gpio
+    number: 46
+  gpio-47:
+    interface: gpio
+    number: 47
+  gpio-48:
+    interface: gpio
+    number: 48
+  gpio-49:
+    interface: gpio
+    number: 49
+  gpio-60:
+    interface: gpio
+    number: 60
+  gpio-61:
+    interface: gpio
+    number: 61
+  gpio-65:
+    interface: gpio
+    number: 65
+  gpio-66:
+    interface: gpio
+    number: 66
+  gpio-67:
+    interface: gpio
+    number: 67
+  gpio-68:
+    interface: gpio
+    number: 68
+  gpio-69:
+    interface: gpio
+    number: 69
+  gpio-112:
+    interface: gpio
+    number: 112
+  gpio-115:
+    interface: gpio
+    number: 115
+  gpio-117:
+    interface: gpio
+    number: 117
+  i2c-0:
+    interface: i2c
+    path: /dev/i2c-0
+  i2c-1:
+    interface: i2c
+    path: /dev/i2c-1

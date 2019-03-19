@@ -1,0 +1,35 @@
+device-tree: am335x-boneblack
+device-tree-origin: kernel
+volumes:
+  pocketbeagle:
+    bootloader: u-boot
+    schema: mbr
+    structure:
+      - name: mlo
+        type: bare
+        size: 131072
+        offset: 131072
+        content:
+          - image: MLO
+      - name: u-boot
+        type: bare
+        size: 786432
+        offset: 393216
+        content:
+          - image: u-boot.img
+      - name: system-boot
+        type: 0C
+        filesystem: vfat
+        filesystem-label: system-boot
+        size: 128M
+        content:
+          - source: initrd-extra.img
+            target: initrd-extra.img
+          - source: am335x-pocketbeagle.dtb
+            target: am335x-pocketbeagle.dtb
+
+defaults:
+  99T7MUlRhtI3U0QFgl5mXXESAiSwt776:
+    service:
+      rsyslog:
+        disable: true

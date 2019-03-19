@@ -1,0 +1,9 @@
+[Unit]
+Description=Enable MUSB gadgets
+
+[Service]
+Type=simple
+ExecStart=/var/lib/misc/enable-musb.sh
+
+[Install]
+WantedBy=multi-user.target
