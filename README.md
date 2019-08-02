@@ -16,7 +16,7 @@ https://github.com/snapcore/snapd/wiki/Gadget-snap
 
 ### Cross on x86 systems
 
-Just run snapcraft in the top of the srouce tree.
+Just run snapcraft in the top of the source tree.
 
 ```
 snapcraft
