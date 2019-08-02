@@ -33,9 +33,10 @@ parts:
       tools/mkenvimage -r -s 131072 -o $SNAPCRAFT_PART_INSTALL/uboot.env ../../../uboot.env.in
       cd $SNAPCRAFT_PART_INSTALL/; ln -s uboot.env uboot.conf
     build-packages:
-      - libpython2.7-dev
       - build-essential
       - bc
+      - html2text
+      - libpython2.7-dev
       - wget
       - on amd64:
         - gcc-arm-linux-gnueabihf
